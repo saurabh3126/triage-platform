@@ -1,0 +1,34 @@
+services:
+  # ── Backend API ───────────────────────────────────────
+  - type: web
+    name: triage-platform-api
+    runtime: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: ADMIN_KEY
+        sync: false
+
+  # ── Frontend Static Site ──────────────────────────────
+  - type: static
+    name: triage-platform-client
+    rootDir: client
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: triage-platform-api
+          envVarKey: RENDER_EXTERNAL_URL
