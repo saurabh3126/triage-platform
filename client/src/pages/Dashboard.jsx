@@ -21,7 +21,7 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="p-12 text-center text-slate-400 text-xs animate-pulse">
+      <div className="p-12 text-center text-slate-500 text-xs font-bold uppercase tracking-widest animate-pulse">
         Aggregating platform intelligence...
       </div>
     );
@@ -29,165 +29,134 @@ export default function Dashboard() {
 
   const total = stats?.total || 0;
 
-  // Helper to extract count from aggregation array
   const getCount = (arr, key) => {
     const item = arr?.find((i) => i._id === key);
     return item ? item.count : 0;
   };
 
-  const criticalCount = getCount(stats?.byRiskLevel, 'Critical');
-  const highCount = getCount(stats?.byRiskLevel, 'High');
-  const mediumCount = getCount(stats?.byRiskLevel, 'Medium');
-  const lowCount = getCount(stats?.byRiskLevel, 'Low');
+  const criticalCount  = getCount(stats?.byRiskLevel, 'Critical');
+  const highCount      = getCount(stats?.byRiskLevel, 'High');
+  const mediumCount    = getCount(stats?.byRiskLevel, 'Medium');
+  const lowCount       = getCount(stats?.byRiskLevel, 'Low');
 
-  const unverifiedCount = getCount(stats?.byStatus, 'Unverified');
-  const trueCount = getCount(stats?.byStatus, 'Verified True');
-  const falseCount = getCount(stats?.byStatus, 'Verified False');
-  const misleadingCount = getCount(stats?.byStatus, 'Misleading');
+  const unverifiedCount  = getCount(stats?.byStatus, 'Unverified');
+  const trueCount        = getCount(stats?.byStatus, 'Verified True');
+  const falseCount       = getCount(stats?.byStatus, 'Verified False');
+  const misleadingCount  = getCount(stats?.byStatus, 'Misleading');
 
   const verifiedTotal = trueCount + falseCount + misleadingCount;
-
   const calcPct = (cnt) => (total > 0 ? Math.round((cnt / total) * 100) : 0);
 
+  const RiskBar = ({ label, count, color, barColor, track }) => (
+    <div>
+      <div className="flex justify-between items-center mb-2">
+        <span className={`text-xs font-black uppercase tracking-widest ${color}`}>● {label}</span>
+        <span className={`font-mono font-black text-sm ${color}`}>
+          {count} <span className="text-slate-500 font-normal text-xs">({calcPct(count)}%)</span>
+        </span>
+      </div>
+      <div className={`h-3 w-full ${track} rounded-full overflow-hidden border-2 border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]`}>
+        <div className={`h-full ${barColor} transition-all duration-500 ease-out`} style={{ width: `${calcPct(count)}%` }} />
+      </div>
+    </div>
+  );
+
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-8">
-      
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-          Platform Triage Intelligence
-        </h1>
-        <p className="text-xs text-slate-500 mt-1">
-          Real-time metrics, risk distribution, and provenance activity across the fact-checking network.
-        </p>
+    <div className="px-6 sm:px-12 py-8 w-full mx-auto space-y-8">
+
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b-2 border-black pb-6">
+        <div>
+          <h1 className="text-3xl font-black italic tracking-tighter text-black uppercase leading-none">
+            Platform <span className="text-[#FFD700]">Intelligence</span>
+          </h1>
+          <p className="text-[10px] text-gray-600 mt-2 uppercase tracking-widest font-bold">
+            Real-time metrics across the fact-checking network
+          </p>
+        </div>
+        <div className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-600 bg-white border-2 border-black rounded-xl px-4 py-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+          🟢 Live
+        </div>
       </div>
 
       {/* KPI Cards Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        
+
         {/* Total Claims */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-            Total Claims Triaged
+        <div className="bg-white p-5 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] space-y-2">
+          <span className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">
+            Total Triaged
           </span>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-3xl font-black text-slate-900 font-mono">
-              {total}
-            </span>
-            <span className="text-xs text-slate-400">records</span>
+          <div className="flex items-baseline gap-2">
+            <span className="text-4xl font-black text-black font-mono">{total}</span>
+            <span className="text-xs text-gray-600 font-bold uppercase">records</span>
           </div>
         </div>
 
         {/* Critical Risk */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs border-l-4 border-l-rose-500">
-          <span className="text-xs font-semibold text-rose-600 uppercase tracking-wider">
+        <div className="bg-rose-50 p-5 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] space-y-2">
+          <span className="text-[10px] font-black text-rose-700 uppercase tracking-[0.2em]">
             Critical Risk
           </span>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-3xl font-black text-rose-600 font-mono">
-              {criticalCount}
-            </span>
-            <span className="text-xs text-slate-400">({calcPct(criticalCount)}%)</span>
+          <div className="flex items-baseline gap-2">
+            <span className="text-4xl font-black text-rose-700 font-mono">{criticalCount}</span>
+            <span className="text-xs text-gray-600 font-bold">({calcPct(criticalCount)}%)</span>
           </div>
         </div>
 
         {/* Pending Verification */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs border-l-4 border-l-amber-500">
-          <span className="text-xs font-semibold text-amber-600 uppercase tracking-wider">
+        <div className="bg-amber-50 p-5 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] space-y-2">
+          <span className="text-[10px] font-black text-amber-700 uppercase tracking-[0.2em]">
             Pending Review
           </span>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-3xl font-black text-amber-600 font-mono">
-              {unverifiedCount}
-            </span>
-            <span className="text-xs text-slate-400">({calcPct(unverifiedCount)}%)</span>
+          <div className="flex items-baseline gap-2">
+            <span className="text-4xl font-black text-amber-700 font-mono">{unverifiedCount}</span>
+            <span className="text-xs text-gray-600 font-bold">({calcPct(unverifiedCount)}%)</span>
           </div>
         </div>
 
         {/* Verified */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs border-l-4 border-l-emerald-500">
-          <span className="text-xs font-semibold text-emerald-600 uppercase tracking-wider">
-            Verified Verdicts
+        <div className="bg-emerald-50 p-5 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] space-y-2">
+          <span className="text-[10px] font-black text-emerald-700 uppercase tracking-[0.2em]">
+            Verdicts Issued
           </span>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-3xl font-black text-emerald-600 font-mono">
-              {verifiedTotal}
-            </span>
-            <span className="text-xs text-slate-400">({calcPct(verifiedTotal)}%)</span>
+          <div className="flex items-baseline gap-2">
+            <span className="text-4xl font-black text-emerald-700 font-mono">{verifiedTotal}</span>
+            <span className="text-xs text-gray-600 font-bold">({calcPct(verifiedTotal)}%)</span>
           </div>
         </div>
       </div>
 
-      {/* Risk Level Distribution Bars */}
-      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-        <h2 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+      {/* Risk Level Distribution */}
+      <div className="bg-white p-6 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] space-y-5">
+        <h2 className="text-[10px] font-black text-black uppercase tracking-[0.2em] border-b-2 border-black pb-3">
           Threat Severity Distribution
         </h2>
-
-        <div className="space-y-3 text-xs">
-          {/* Critical */}
-          <div>
-            <div className="flex justify-between mb-1">
-              <span className="font-semibold text-rose-600">● Critical Risk</span>
-              <span className="font-mono text-slate-700">{criticalCount} ({calcPct(criticalCount)}%)</span>
-            </div>
-            <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-              <div className="h-full bg-rose-600" style={{ width: `${calcPct(criticalCount)}%` }} />
-            </div>
-          </div>
-
-          {/* High */}
-          <div>
-            <div className="flex justify-between mb-1">
-              <span className="font-semibold text-orange-500">● High Risk</span>
-              <span className="font-mono text-slate-700">{highCount} ({calcPct(highCount)}%)</span>
-            </div>
-            <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-              <div className="h-full bg-orange-500" style={{ width: `${calcPct(highCount)}%` }} />
-            </div>
-          </div>
-
-          {/* Medium */}
-          <div>
-            <div className="flex justify-between mb-1">
-              <span className="font-semibold text-amber-500">● Medium Risk</span>
-              <span className="font-mono text-slate-700">{mediumCount} ({calcPct(mediumCount)}%)</span>
-            </div>
-            <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-              <div className="h-full bg-amber-500" style={{ width: `${calcPct(mediumCount)}%` }} />
-            </div>
-          </div>
-
-          {/* Low */}
-          <div>
-            <div className="flex justify-between mb-1">
-              <span className="font-semibold text-emerald-500">● Low Risk</span>
-              <span className="font-mono text-slate-700">{lowCount} ({calcPct(lowCount)}%)</span>
-            </div>
-            <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-              <div className="h-full bg-emerald-500" style={{ width: `${calcPct(lowCount)}%` }} />
-            </div>
-          </div>
+        <div className="space-y-4">
+          <RiskBar label="Critical"  count={criticalCount} color="text-rose-700"   barColor="bg-rose-500"   track="bg-rose-100"   />
+          <RiskBar label="High"      count={highCount}     color="text-orange-700" barColor="bg-orange-500" track="bg-orange-100" />
+          <RiskBar label="Medium"    count={mediumCount}   color="text-amber-700"  barColor="bg-amber-500"  track="bg-amber-100"  />
+          <RiskBar label="Low"       count={lowCount}      color="text-emerald-700" barColor="bg-emerald-500" track="bg-emerald-100" />
         </div>
       </div>
 
       {/* Dual Breakdown: Category & Status */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
+
         {/* By Category */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-3">
-          <h2 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+        <div className="bg-white p-6 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] space-y-4">
+          <h2 className="text-[10px] font-black text-black uppercase tracking-[0.2em] border-b-2 border-black pb-3">
             Claims by Category
           </h2>
-          <div className="divide-y divide-slate-100 text-xs">
+          <div className="space-y-2">
             {['Health', 'Politics', 'Finance', 'Other'].map((cat) => {
               const cnt = getCount(stats?.byCategory, cat);
               return (
-                <div key={cat} className="py-2.5 flex justify-between items-center">
-                  <span className="text-slate-700 font-medium">{cat}</span>
+                <div key={cat} className="flex justify-between items-center p-3 bg-slate-50 rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                  <span className="text-xs font-black text-black uppercase tracking-wider">{cat}</span>
                   <div className="flex items-center gap-2">
-                    <span className="font-mono font-bold text-slate-900">{cnt}</span>
-                    <span className="text-slate-400 font-mono text-[11px]">({calcPct(cnt)}%)</span>
+                    <span className="font-mono font-black text-black text-sm">{cnt}</span>
+                    <span className="text-gray-600 font-mono text-[10px] font-bold">({calcPct(cnt)}%)</span>
                   </div>
                 </div>
               );
@@ -196,24 +165,24 @@ export default function Dashboard() {
         </div>
 
         {/* By Status */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-3">
-          <h2 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+        <div className="bg-white p-6 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] space-y-4">
+          <h2 className="text-[10px] font-black text-black uppercase tracking-[0.2em] border-b-2 border-black pb-3">
             Verification Verdicts
           </h2>
-          <div className="divide-y divide-slate-100 text-xs">
+          <div className="space-y-2">
             {[
-              { label: 'Unverified', color: 'text-slate-600' },
-              { label: 'Verified True', color: 'text-emerald-600' },
-              { label: 'Verified False', color: 'text-rose-600' },
-              { label: 'Misleading', color: 'text-amber-600' },
-            ].map(({ label, color }) => {
+              { label: 'Unverified',     bg: 'bg-slate-100',   text: 'text-slate-700'   },
+              { label: 'Verified True',  bg: 'bg-emerald-100', text: 'text-emerald-700' },
+              { label: 'Verified False', bg: 'bg-rose-100',    text: 'text-rose-700'    },
+              { label: 'Misleading',     bg: 'bg-amber-100',   text: 'text-amber-700'   },
+            ].map(({ label, bg, text }) => {
               const cnt = getCount(stats?.byStatus, label);
               return (
-                <div key={label} className="py-2.5 flex justify-between items-center">
-                  <span className={`font-medium ${color}`}>{label}</span>
+                <div key={label} className={`flex justify-between items-center p-3 ${bg} rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]`}>
+                  <span className={`text-xs font-black uppercase tracking-wider ${text}`}>{label}</span>
                   <div className="flex items-center gap-2">
-                    <span className="font-mono font-bold text-slate-900">{cnt}</span>
-                    <span className="text-slate-400 font-mono text-[11px]">({calcPct(cnt)}%)</span>
+                    <span className={`font-mono font-black text-sm ${text}`}>{cnt}</span>
+                    <span className="text-gray-600 font-mono text-[10px] font-bold">({calcPct(cnt)}%)</span>
                   </div>
                 </div>
               );
@@ -224,50 +193,50 @@ export default function Dashboard() {
 
       {/* Platform & Recent Audit Stream */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        
+
         {/* Source Platforms */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-3">
-          <h2 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+        <div className="bg-white p-6 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] space-y-4">
+          <h2 className="text-[10px] font-black text-black uppercase tracking-[0.2em] border-b-2 border-black pb-3">
             Source Platforms
           </h2>
-          <div className="space-y-2 text-xs">
-            {['WhatsApp', 'X', 'Instagram', 'Other'].map((p) => {
+          <div className="space-y-2">
+            {['WhatsApp', 'X', 'Instagram', 'Reddit', 'Other'].map((p) => {
               const cnt = getCount(stats?.byPlatform, p);
               return (
-                <div key={p} className="flex items-center justify-between p-2 rounded-lg bg-slate-50">
-                  <span className="text-slate-700 font-medium">{p}</span>
-                  <span className="font-mono font-bold text-slate-900">{cnt}</span>
+                <div key={p} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                  <span className="text-xs font-black text-black uppercase tracking-wider">{p}</span>
+                  <span className="font-mono font-black text-black text-sm">{cnt}</span>
                 </div>
               );
             })}
           </div>
         </div>
 
-        {/* Recent Platform Audit Activity */}
-        <div className="md:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-3">
-          <h2 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+        {/* Recent Audit Stream */}
+        <div className="md:col-span-2 bg-white p-6 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] space-y-4">
+          <h2 className="text-[10px] font-black text-black uppercase tracking-[0.2em] border-b-2 border-black pb-3">
             Recent Audit Stream
           </h2>
-          <div className="divide-y divide-slate-100 text-xs">
+          <div className="space-y-2">
             {stats?.recent?.length > 0 ? (
               stats.recent.map((ev, idx) => (
-                <div key={idx} className="py-2.5 flex items-center justify-between gap-3">
+                <div key={idx} className="flex items-center justify-between gap-3 p-3 bg-slate-50 rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
                   <div className="min-w-0 flex-1">
-                    <p className="text-slate-800 font-medium truncate">
+                    <p className="text-xs text-black font-bold truncate">
                       "{ev.text}..."
                     </p>
-                    <p className="text-[11px] text-slate-400 mt-0.5">
-                      <span className="capitalize font-semibold text-slate-600">{ev.action}</span>
-                      {ev.status && ` as ${ev.status}`} by <span className="font-mono text-slate-700">{ev.performedBy}</span>
+                    <p className="text-[10px] text-gray-500 mt-0.5 uppercase tracking-wider font-bold">
+                      <span className="text-black">{ev.action}</span>
+                      {ev.status && ` → ${ev.status}`} · <span className="font-mono">{ev.performedBy}</span>
                     </p>
                   </div>
-                  <time className="text-[10px] text-slate-400 shrink-0 font-mono">
+                  <time className="text-[10px] text-gray-600 shrink-0 font-mono font-bold bg-white border-2 border-black rounded-lg px-2 py-1 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
                     {new Date(ev.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </time>
                 </div>
               ))
             ) : (
-              <p className="text-slate-400 italic py-4">No recent activity.</p>
+              <p className="text-gray-600 italic text-sm py-4 text-center">No recent activity.</p>
             )}
           </div>
         </div>

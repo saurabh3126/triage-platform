@@ -66,7 +66,7 @@ export default function SubmitClaim() {
       return;
     }
     setAiLoading(true);
-    const toastId = toast.loading('Gemini AI is analyzing image and text...');
+    const toastId = toast.loading('Analyzing claim details...');
     try {
       const { data } = await analyzeWithGemini({ text, imageBase64: imagePreview });
       
@@ -90,12 +90,12 @@ export default function SubmitClaim() {
         isHighRisk: data.riskScore >= 50,
       });
 
-      toast.success('AI Analysis Complete!', { id: toastId });
+      toast.success('Analysis Complete!', { id: toastId });
     } catch (err) {
       console.error(err);
-            const msg = err.response?.data?.error || 'Gemini analysis failed';
-      const is503 = msg.includes('503') || msg.includes('high demand') || msg.includes('unavailable');
-      toast.error(is503 ? '⏳ Gemini is overloaded right now. Please wait 30 seconds and try again!' : msg, { id: toastId });
+      const msg = err.response?.data?.error || 'Analysis failed';
+      const is503 = msg.includes('503') || msg.includes('high demand') || msg.includes('unavailable') || msg.includes('overloaded');
+      toast.error(is503 ? '⏳ The server is a bit busy right now. Please wait a few seconds and try again!' : 'Unable to analyze this claim right now. Please try again.', { id: toastId });
     } finally {
       setAiLoading(false);
     }
@@ -125,56 +125,59 @@ export default function SubmitClaim() {
       toast.success(`Claim submitted! Risk score: ${data.claim.riskScore}/100`);
       navigate(`/?claimId=${data.claim._id}`);
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Submission failed');
+      toast.error('Unable to submit claim. Please try again.');
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="max-w-2xl mx-auto py-10 px-4 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Submit a Viral Claim</h1>
-        <p className="text-sm text-slate-500 mt-1">
-          Paste viral post text, a link, or upload a screenshot. Use Gemini AI to extract text and score risk accurately.
+    <div className="max-w-2xl mx-auto py-10 px-4 space-y-6 animate-in fade-in duration-500">
+      {/* Header matching INFUSED style */}
+      <div className="border-b border-black/10 pb-6 mb-8">
+        <h1 className="text-3xl font-black italic tracking-tighter text-black uppercase leading-none">
+          Submit <span className="text-[#FFD700]">Claim</span>
+        </h1>
+        <p className="text-[10px] text-gray-600 mt-2 uppercase tracking-widest font-bold">
+          Auto-extract text and score risk instantly
         </p>
       </div>
 
       {duplicateWarning && (
-        <div className="p-4 rounded-xl border border-amber-300 bg-amber-50 text-amber-900 space-y-2">
-          <div className="flex items-center gap-2 font-bold text-xs uppercase tracking-wider text-amber-800">
+        <div className="p-4 rounded-none border border-amber-500/50 bg-slate-50 text-amber-200 space-y-3">
+          <div className="flex items-center gap-2 font-bold text-[10px] uppercase tracking-[0.2em] text-[#FFD700]">
             <span>⚠️</span> Duplicate Claim Detected
           </div>
           <p className="text-xs">
             A 40%+ matching claim was already submitted with status: <strong>{duplicateWarning.status}</strong> (Risk Score: {duplicateWarning.riskScore}/100).
           </p>
-          <div className="p-2.5 bg-white/80 rounded border border-amber-200 text-xs italic line-clamp-2">
+          <div className="p-3 bg-white border border-black/10 text-xs italic line-clamp-2 text-gray-500">
             "{duplicateWarning.text}"
           </div>
-          <div className="flex gap-2 pt-1">
+          <div className="flex gap-3 pt-2">
             <button
               type="button"
               onClick={() => navigate(`/?claimId=${duplicateWarning._id}`)}
-              className="px-3 py-1.5 text-xs font-semibold bg-amber-700 hover:bg-amber-800 text-white rounded-md transition"
+              className="px-4 py-2 text-[10px] tracking-[0.2em] font-bold bg-[#FFD700] hover:bg-black hover:text-white text-black transition-colors"
             >
-              View Existing Claim
+              VIEW EXISTING
             </button>
             <button
               type="button"
               onClick={() => setDuplicateWarning(null)}
-              className="px-3 py-1.5 text-xs font-medium bg-white text-slate-700 border border-slate-300 rounded-md hover:bg-slate-100 transition"
+              className="px-4 py-2 text-[10px] tracking-[0.2em] font-bold bg-transparent text-gray-500 border border-black/20 hover:text-black transition-colors"
             >
-              Dismiss
+              DISMISS
             </button>
           </div>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
+      <form onSubmit={handleSubmit} className="space-y-8 bg-white p-8 rounded-2xl border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
 
         {/* Text Area */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-xs font-semibold text-slate-700">
+        <div className="space-y-3">
+          <div className="flex items-center justify-between text-[10px] font-bold tracking-[0.2em] text-gray-500 uppercase">
             <label htmlFor="claimText">Post Text / Content / Link *</label>
             <div className="flex items-center gap-3">
               {text.includes('http') && (
@@ -182,12 +185,12 @@ export default function SubmitClaim() {
                   type="button"
                   onClick={handleAutoExtract}
                   disabled={extracting}
-                  className="text-[11px] px-2.5 py-1 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-md font-semibold border border-indigo-200 transition flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                  className="text-[9px] px-3 py-1.5 bg-white text-[#FFD700] hover:bg-[#FFD700] hover:text-white font-bold border border-[#FFD700]/30 transition-colors flex items-center gap-1 cursor-pointer disabled:opacity-50 tracking-widest"
                 >
-                  {extracting ? '⏳ Extracting...' : '⚡ Auto-Extract Link'}
+                  {extracting ? '⏳ EXTRACTING...' : '⚡ AUTO-EXTRACT LINK'}
                 </button>
               )}
-              <span className="font-mono text-slate-400 font-normal">{text.length} characters</span>
+              <span className="font-mono text-gray-600 font-normal">{text.length} CHARS</span>
             </div>
           </div>
           <textarea
@@ -195,55 +198,55 @@ export default function SubmitClaim() {
             rows={5}
             value={text}
             onChange={(e) => { setText(e.target.value); setAiReasoning(''); }}
-            placeholder="Paste the viral claim message here (e.g. 'BREAKING!! Share before deleted: 5G towers cause...')"
-            className="w-full p-3.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-indigo-600 text-slate-900 leading-relaxed font-sans transition"
+            placeholder="PASTE THE VIRAL CLAIM MESSAGE HERE..."
+            className="w-full p-4 text-sm font-bold tracking-wide bg-slate-50 border-2 border-black rounded-xl focus:border-black focus:ring-2 focus:ring-black text-black leading-relaxed transition-all outline-none placeholder-gray-400 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
             required
           />
         </div>
 
         {/* Screenshot Upload */}
-        <div className="space-y-2">
-          <label className="text-xs font-semibold text-slate-700 block">
-            📷 Attach Screenshot (for Gemini AI Analysis)
+        <div className="space-y-3">
+          <label className="text-[10px] font-bold tracking-[0.2em] text-gray-500 uppercase block">
+            📷 ATTACH SCREENSHOT (OPTIONAL)
           </label>
           <input
             type="file"
             accept="image/*"
             onChange={handleImageChange}
-            className="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 cursor-pointer"
+            className="block w-full text-[10px] font-bold tracking-widest text-gray-600 file:mr-4 file:py-2.5 file:px-4 file:border-2 file:border-black file:rounded-lg file:text-[10px] file:font-bold file:tracking-widest file:bg-white file:text-black hover:file:bg-[#FFD700] file:transition-all cursor-pointer file:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
           />
           {imagePreview && (
-            <div className="relative mt-2 p-2 bg-slate-50 rounded-xl border border-slate-200 inline-block max-w-xs">
-              <img src={imagePreview} alt="Screenshot Preview" className="max-h-36 rounded-lg object-contain" />
+            <div className="relative mt-3 p-2 bg-slate-50 border-2 border-black rounded-xl inline-block max-w-xs shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+              <img src={imagePreview} alt="Screenshot Preview" className="max-h-36 object-contain rounded-lg" />
               <button
                 type="button"
                 onClick={() => setImagePreview('')}
-                className="absolute -top-2 -right-2 w-6 h-6 bg-rose-600 text-white rounded-full text-xs flex items-center justify-center shadow hover:bg-rose-700"
+                className="absolute -top-3 -right-3 w-7 h-7 bg-red-500 border-2 border-black text-white text-xs font-bold flex items-center justify-center rounded-full hover:bg-red-600 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-y-px hover:shadow-none transition-all cursor-pointer"
               >✕</button>
             </div>
           )}
         </div>
 
-        {/* ✨ Gemini AI Button */}
+        {/* ✨ Auto-Analyze Button */}
         <button
           type="button"
           onClick={handleGeminiAnalysis}
           disabled={aiLoading || (!text && !imagePreview)}
-          className="w-full py-2.5 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-sm rounded-xl shadow-sm transition flex justify-center items-center gap-2 disabled:opacity-50 cursor-pointer"
+          className="w-full py-4 px-4 bg-[#FFD700] text-black font-black text-[12px] uppercase tracking-[0.2em] rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] hover:translate-y-1 transition-all flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {aiLoading ? '🤖 Gemini is analyzing...' : '✨ Analyze Image & Text with Gemini AI'}
+          {aiLoading ? ' ANALYZING CONTENT...' : '✨ AUTO-ANALYZE CLAIM'}
         </button>
 
-        {/* Platform & Category — auto-filled by Gemini */}
+        {/* Platform & Category — auto-filled */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-              Source Platform * {aiReasoning && <span className="text-indigo-500 font-normal">(AI selected)</span>}
+            <label className="block text-xs font-semibold text-slate-800 mb-1.5">
+              Source Platform * {aiReasoning && <span className="text-indigo-500 font-normal">(Auto-detected)</span>}
             </label>
             <select
               value={platform}
               onChange={(e) => setPlatform(e.target.value)}
-              className="w-full p-2.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-indigo-600 text-slate-800"
+              className="w-full p-3 text-xs bg-slate-50 border-2 border-black rounded-xl focus:border-black focus:ring-2 focus:ring-black text-black font-bold uppercase tracking-wider shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] cursor-pointer"
             >
               <option value="WhatsApp">WhatsApp</option>
               <option value="X">X (Twitter)</option>
@@ -253,13 +256,13 @@ export default function SubmitClaim() {
             </select>
           </div>
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-              Category * {aiReasoning && <span className="text-indigo-500 font-normal">(AI selected)</span>}
+            <label className="block text-xs font-semibold text-slate-800 mb-1.5">
+              Category * {aiReasoning && <span className="text-indigo-500 font-normal">(Auto-detected)</span>}
             </label>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full p-2.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-indigo-600 text-slate-800"
+              className="w-full p-3 text-xs bg-slate-50 border-2 border-black rounded-xl focus:border-black focus:ring-2 focus:ring-black text-black font-bold uppercase tracking-wider shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] cursor-pointer"
             >
               <option value="Politics">Politics</option>
               <option value="Health">Health</option>
@@ -270,14 +273,14 @@ export default function SubmitClaim() {
         </div>
 
         {/* Live / AI Triage Panel */}
-        <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+        <div className="p-5 bg-white rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] space-y-4">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
               <span>{aiReasoning ? '✨' : '⚡'}</span>
-              {aiReasoning ? 'Gemini AI Triage' : 'Live Threat Triage'}
+              {aiReasoning ? 'Analysis Triage' : 'Live Threat Triage'}
             </span>
-            <span className="text-[10px] text-slate-400">
-              {aiReasoning ? 'Analyzed by AI' : 'Updates as you type'}
+            <span className="text-[10px] text-slate-500">
+              {aiReasoning ? 'Auto-scored' : 'Updates as you type'}
             </span>
           </div>
 
@@ -288,18 +291,18 @@ export default function SubmitClaim() {
             <RiskFlag type="shouting"    active={liveAnalysis.shouting} />
             <RiskFlag type="unsourced"   active={liveAnalysis.unsourced} />
             {liveAnalysis.isHighRisk && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold bg-rose-600 text-white animate-pulse">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-none text-xs font-semibold bg-rose-600 text-white animate-pulse">
                 🔴 High Risk (2+ Flags Detected)
               </span>
             )}
             {!liveAnalysis.sensational && !liveAnalysis.shouting && !liveAnalysis.unsourced && (
-              <span className="text-xs text-slate-400 italic">No flags triggered yet</span>
+              <span className="text-xs text-slate-500 italic">No flags triggered yet</span>
             )}
           </div>
 
           {aiReasoning && (
-            <div className="mt-3 p-3 bg-indigo-50 border border-indigo-100 rounded-lg text-xs text-indigo-900 leading-relaxed shadow-sm">
-              <strong className="font-semibold block mb-1">🤖 Gemini Analysis:</strong>
+            <div className="mt-3 p-3 bg-indigo-900/30 border border-indigo-500/30 rounded-none text-xs text-indigo-300 leading-relaxed shadow-sm">
+              <strong className="font-semibold block mb-1">🤖 Analysis Details:</strong>
               {aiReasoning}
             </div>
           )}
@@ -309,9 +312,9 @@ export default function SubmitClaim() {
         <button
           type="submit"
           disabled={submitting || extracting || aiLoading}
-          className="w-full py-3 px-4 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm rounded-xl shadow-xs transition disabled:opacity-50"
+          className="w-full py-4 px-4 bg-black text-white font-black text-[13px] uppercase tracking-[0.25em] rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] hover:bg-[#FFD700] hover:text-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-all disabled:opacity-50 mt-8"
         >
-          {submitting ? 'Submitting...' : '🚀 Submit Claim for Triage'}
+          {submitting ? 'SUBMITTING...' : ' SUBMIT CLAIM FOR TRIAGE'}
         </button>
       </form>
     </div>

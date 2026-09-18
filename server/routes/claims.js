@@ -152,45 +152,6 @@ router.post('/', optionalAuth, async (req, res) => {
   }
 });
 
-// GET /api/claims/stats
-router.get('/stats', async (req, res) => {
-  try {
-    const [total, byStatus, byCategory, byRiskLevel, byPlatform, recent] = await Promise.all([
-      Claim.countDocuments(),
-      Claim.aggregate([{ $group: { _id: '$status',    count: { $sum: 1 } } }]),
-      Claim.aggregate([{ $group: { _id: '$category',  count: { $sum: 1 } } }]),
-      Claim.aggregate([{ $group: { _id: '$riskLevel', count: { $sum: 1 } } }]),
-      Claim.aggregate([{ $group: { _id: '$platform',  count: { $sum: 1 } } }]),
-      Claim.aggregate([
-        { $unwind: '$history' },
-        { $sort: { 'history.timestamp': -1 } },
-        { $limit: 5 },
-        { $project: {
-          text: { $substr: ['$text', 0, 60] }, action: '$history.action',
-          status: '$history.status', performedBy: '$history.performedBy',
-          timestamp: '$history.timestamp', category: 1, riskLevel: 1,
-        }},
-      ]),
-    ]);
-    res.json({ total, byStatus, byCategory, byRiskLevel, byPlatform, recent });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// GET /api/claims/trending
-router.get('/trending', async (req, res) => {
-  try {
-    const since  = new Date(Date.now() - 86400000);
-    const claims = await Claim.find({ submittedAt: { $gte: since } })
-      .sort({ riskScore: -1 }).limit(5)
-      .select('text riskScore riskLevel status submittedAt imageUrl').lean();
-    res.json(claims);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
 // GET /api/claims
 router.get('/', async (req, res) => {
   try {
@@ -208,7 +169,50 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /api/claims/:id
+// GET /api/claims/stats  ← MUST be before /:id so Express doesn't treat "stats" as an id param
+router.get('/stats', async (req, res) => {
+  try {
+    const [total, byStatus, byCategory, byRiskLevel, byPlatform, recent] = await Promise.all([
+      Claim.countDocuments(),
+      Claim.aggregate([{ $group: { _id: '$status',    count: { $sum: 1 } } }]),
+      Claim.aggregate([{ $group: { _id: '$category',  count: { $sum: 1 } } }]),
+      Claim.aggregate([{ $group: { _id: '$riskLevel', count: { $sum: 1 } } }]),
+      Claim.aggregate([{ $group: { _id: '$platform',  count: { $sum: 1 } } }]),
+      Claim.aggregate([
+        { $unwind: '$history' },
+        { $sort: { 'history.timestamp': -1 } },
+        { $limit: 5 },
+        { $project: {
+          text: { $substrCP: ['$text', 0, 60] },   // $substrCP = code points (safe for emoji/unicode)
+          action: '$history.action',
+          status: '$history.status',
+          performedBy: '$history.performedBy',
+          timestamp: '$history.timestamp',
+          category: 1,
+          riskLevel: 1,
+        }},
+      ]),
+    ]);
+    res.json({ total, byStatus, byCategory, byRiskLevel, byPlatform, recent });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/claims/trending  ← also before /:id
+router.get('/trending', async (req, res) => {
+  try {
+    const since  = new Date(Date.now() - 86400000);
+    const claims = await Claim.find({ submittedAt: { $gte: since } })
+      .sort({ riskScore: -1 }).limit(5)
+      .select('text riskScore riskLevel status submittedAt imageUrl').lean();
+    res.json(claims);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/claims/:id  ← catch-all LAST
 router.get('/:id', async (req, res) => {
   try {
     const claim = await Claim.findById(req.params.id);
