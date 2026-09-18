@@ -1,10 +1,11 @@
 const mongoose = require('mongoose');
 
 const historySchema = new mongoose.Schema({
-  action:    { type: String, enum: ['submitted', 'reviewed', 'disputed'] },
-  status:    String,
-  note:      String,
-  timestamp: { type: Date, default: Date.now },
+  action:      { type: String, enum: ['submitted', 'reviewed', 'disputed'] },
+  status:      String,
+  note:        String,
+  performedBy: { type: String, default: 'Anonymous' }, // ← NEW
+  timestamp:   { type: Date, default: Date.now },
 }, { _id: false });
 
 const claimSchema = new mongoose.Schema({
@@ -24,6 +25,7 @@ const claimSchema = new mongoose.Schema({
 
   status:       { type: String, enum: ['Unverified', 'Verified True', 'Verified False', 'Misleading'], default: 'Unverified' },
   reviewerNote: { type: String, default: '' },
+  reviewedBy:   { type: String, default: '' }, // ← NEW: stores reviewer username
 
   history:     [historySchema],
   submittedAt: { type: Date, default: Date.now },
