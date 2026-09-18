@@ -1,10 +1,7 @@
 import React from 'react';
-import { NavLink, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { NavLink } from 'react-router-dom';
 
 export default function Sidebar() {
-  const { user, logout, isAdmin } = useAuth();
-
   const navItems = [
     { to: '/', label: 'Claims Feed', icon: '📋' },
     { to: '/submit', label: 'Submit Claim', icon: '➕' },
@@ -49,40 +46,12 @@ export default function Sidebar() {
           ))}
         </nav>
       </div>
-
-      {/* User / Auth Footer */}
+      
+      {/* Footer message instead of login */}
       <div className="p-4 border-t border-slate-800">
-        {user ? (
-          <div className="flex items-center justify-between p-2 rounded-lg bg-slate-800/50">
-            <div className="min-w-0 pr-2">
-              <p className="text-xs font-semibold text-white truncate">
-                @{user.username}
-              </p>
-              <p className="text-[10px] text-indigo-400 font-mono uppercase tracking-wider">
-                {isAdmin ? '🛡️ Reviewer' : '👤 Contributor'}
-              </p>
-            </div>
-            <button
-              onClick={logout}
-              title="Logout"
-              className="p-1.5 text-xs text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded transition"
-            >
-              🚪
-            </button>
-          </div>
-        ) : (
-          <div className="space-y-1.5">
-            <Link
-              to="/login"
-              className="block w-full text-center py-2 px-3 text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition"
-            >
-              Reviewer / User Login
-            </Link>
-            <p className="text-[11px] text-center text-slate-500">
-              Submissions can be anonymous
-            </p>
-          </div>
-        )}
+        <p className="text-[11px] text-center text-slate-500">
+          Community-driven fact verification
+        </p>
       </div>
     </aside>
   );

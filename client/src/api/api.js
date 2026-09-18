@@ -22,5 +22,8 @@ export const fetchTrending  = ()       => API.get('/claims/trending');
 export const loginUser      = (data)   => API.post('/auth/login', data);
 export const registerUser   = (data)   => API.post('/auth/register', data);
 export const getMe          = ()       => API.get('/auth/me');
-
+export const extractLinkContent = (url) => API.post('/claims/extract-link', { url });
+export const analyzeWithGemini = (data) => API.post('/claims/gemini-analyze', data);
+export const voteOnClaim   = (id, vote) => API.post(`/claims/${id}/vote`, { vote });
+export const resolveClaim  = (id)       => API.post(`/claims/${id}/resolve`);
 export default API;
