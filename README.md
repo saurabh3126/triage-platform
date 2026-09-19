@@ -1,129 +1,111 @@
-# FactTriage® — Real-Time Misinformation Triage Platform
+# FactTriage
 
-> A modern, public-facing viral claims triage and community-driven fact-checking network with automated Gemini AI analysis, heuristic risk scoring, and decentralized dispute voting.
-
----
-
-## 📌 Overview
-
-**FactTriage®** is an end-to-end platform engineered to combat the velocity of viral social media misinformation. By combining immediate client/server heuristic screening with Google's multimodal Gemini 2.5 AI, the platform auto-extracts text, computes a calibrated misinformation risk score, detects duplicates across the network, and exposes a transparent, immutable audit trail for every verdict and dispute.
+**Hackathon ID:** AZIS-UUP4SQ  
+**Track:** Misinformation / Content Triage  
+**Live Deployed App:** https://azisly-hackathon-frontend.onrender.com/  
+**Repository:** https://github.com/saurabh3126/triage-platform  
+**Grading Mode:** Browser agent driving UI & REST API  
 
 ---
 
-## 🚀 Key Features
+## Overview
 
-- **⚡ Gemini AI Multimodal Analysis & OCR**: Extract text directly from screenshots, parse viral links, and generate automated risk reasoning with platform and category auto-detection.
-- **🛡️ Multi-Tier Risk Scoring**: 
-  - Real-time heuristic detection for **Sensationalism**, **ALL-CAPS Shouting**, and **Missing Sources**.
-  - Duplicate detection engine preventing spam and repeat submissions (>40% similarity matching).
-- **🗳️ Decentralized Community Dispute & Voting Protocol**:
-  - Any user can dispute an initial verdict to trigger a 12-hour community voting window.
-  - IP-restricted one-vote-per-user enforcement with live vote distribution meters and auto-resolution after threshold.
-- **📊 Platform Triage Intelligence Dashboard**:
-  - Live KPIs tracking total claims, critical threats, pending reviews, and verified verdicts.
-  - Threat severity distribution meters, category distributions, and real-time audit event streams.
-- **📜 Immutable Audit Trail**:
-  - Every action (`submitted`, `reviewed`, `disputed`, `voted`, `resolved`) is recorded with timestamp, note, and actor identity.
-- **🎨 Neo-Brutalist High-Contrast Design**:
-  - High-visibility aesthetic with bold borders, distinct shadows, responsive layouts, and zero auth barriers for public accessibility.
+FactTriage is a lightweight, real-time misinformation triage platform built to handle viral social media claims quickly. When posts start blowing up on apps like WhatsApp, X, or Instagram, misinformation moves faster than newsrooms can publish formal debunkings. This app lets anyone submit a suspicious claim, calculates an automated heuristic risk score right away, makes the feed public for crowd review, and gives reviewers a clean interface to submit verdicts or initiate community dispute votes.
 
 ---
 
-## 🏗️ Architecture & Tech Stack
+## Five Required Features
 
-```
-[ Social Media Link / Screenshot / Post ]
-                 │
-                 ▼
-      [ React 18 + Vite Frontend ]
-                 │ (REST API)
-                 ▼
-      [ Express.js + Node.js API ]
-        ├── Heuristic Analyzer (Regex / NLP checks)
-        ├── Similarity Matching (Jaccard / Levenshtein duplicate check)
-        ├── Gemini 2.5 Flash (OCR + Multimodal Reasoning)
-        └── Mongoose ODM ──▶ [ MongoDB Atlas ]
-```
-
-- **Frontend**: React 18, Vite, React Router v6, Tailwind CSS, Lucide Icons, React Hot Toast.
-- **Backend**: Node.js, Express.js, Mongoose, Axios, dotenv, cors.
-- **AI & Processing**: `@google/generative-ai` (Gemini 2.5 Flash), Cheerio/Meta extractors.
-- **Database**: MongoDB (Atlas/Local) with indexing on status, riskLevel, and text embeddings.
-
----
-
-## 💡 Architectural Decision Points (DPs)
-
-### Decision Point 1: Hybrid Heuristic + Multimodal LLM Triage vs. Pure LLM Analysis
-- **Context**: Social media claims arrive in high volume with varied modalities (raw text, screenshots, news links). Relying solely on external LLM calls causes latency spikes, rate-limit bottlenecks, and higher operational costs.
-- **Decision**: Implemented a hybrid two-stage pipeline:
-  1. *Deterministic Heuristic Engine*: Immediately executes regex-based keyword detection (sensationalist words, shouting caps ratios, unsourced triggers) and duplicate cross-matching on the server.
-  2. *Multimodal Gemini 2.5 Flash Engine*: Triggered on-demand to perform OCR on attached screenshots and deep contextual reasoning.
-- **Outcome**: Near-instant feedback for end users while preserving deep multimodal comprehension when required.
-
-### Decision Point 2: Public Community Dispute Protocol vs. Closed Moderator Gatekeeping
-- **Context**: Centralized fact-checking platforms often suffer from reviewer backlog and user distrust over single-party verdicts.
-- **Decision**: Designed an open dispute workflow where any community member can challenge an initial verdict. Challenging moves the claim into `Disputed` status and opens a time-locked 12-hour voting window requiring $\ge 3$ community votes to automatically reconcile.
-- **Outcome**: Democratized verification with transparent accountability and verifiable consensus without requiring mandatory user signups or logins.
-
-### Decision Point 3: Safe Unicode Aggregation (`$substrCP`) vs. Naive String Truncation
-- **Context**: Viral claims contain emojis, non-Latin scripts, and special Unicode characters (e.g., 🍵, 🚨, Hindi/Arabic text). Using MongoDB's standard `$substr` during analytics aggregation crashes the pipeline if a multi-byte UTF-8 character is sliced mid-boundary.
-- **Decision**: Migrated database aggregation pipelines to `$substrCP` (Code Point calculation) for all text projections and preview generation.
-- **Outcome**: 100% crash resilience across global, multi-lingual social media text with zero UTF-8 slice errors.
+1. **Submit a Claim**
+   - Submit viral post text along with the source platform (`WhatsApp`, `X`, `Instagram`, `Reddit`, `Other`) and primary category (`Politics`, `Health`, `Finance`, `Other`).
+   - Includes optional link auto-extraction and screenshot attachment with OCR text extraction.
+2. **Risk Flags**
+   - Automatically scans input for sensational keywords (`"breaking"`, `"shocking"`, `"share before deleted"`, etc.).
+   - Detects shouting posts where uppercase characters make up over 50% of the text.
+   - Flags unsourced claims that do not contain a verifiable URL link.
+   - Any claim triggering **2 or more flags** is automatically flagged as **High Risk** with an elevated threat severity score.
+3. **Review Workflow**
+   - Reviewers can evaluate any unverified post and apply an initial verdict: **Verified True**, **Verified False**, or **Misleading**.
+   - Every review requires a brief note explaining the context or evidence, which is logged to the claim's permanent audit trail.
+4. **Public Feed**
+   - A live feed showing all claims badged by status and threat level.
+   - Real-time dropdown filters for category and status, plus a text search box and sort controls.
+5. **Detail View**
+   - Clicking any claim opens a dedicated detail drawer displaying the complete text, triggered flags, risk meter, reviewer notes, and timestamped audit history.
+   - Allows users to dispute a verdict and participate in a 12-hour community vote with real-time percentage meters.
 
 ---
 
-## ⚙️ Getting Started
+## Decision Points Summary
 
-### Prerequisites
-- Node.js (v18+)
-- MongoDB running locally or a MongoDB Atlas URI
-- Google Gemini API Key
+Our full rationale for the three core product decisions is documented in [`DECISIONS.md`](./DECISIONS.md):
 
-### 1. Environment Setup
+- **DP1 (Feed Order):** We sort by **Highest Risk First** by default so that explosive, high-severity claims get eyes on them immediately before causing real-world damage. Users can toggle to **Most Recent First** anytime.
+- **DP2 (Visibility):** Unverified claims are **immediately visible** with an `Unverified` status badge. Holding them back creates a dangerous information vacuum during breaking events.
+- **DP3 (Editing):** Claim text is **immutable after submission**. To prevent bait-and-switch manipulation, all corrections and context must be added through reviewer notes, dispute voting, and the audit trail.
 
-Create `server/.env`:
-```env
-PORT=5000
-MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/fact-triage?retryWrites=true&w=majority
-GEMINI_API_KEY=your_gemini_api_key_here
+---
+
+## Evaluation & Access (No Login Required)
+
+- **Authentication:** In accordance with the hackathon rules, all authentication and login walls have been completely removed.
+- **Test Credentials:** None needed. Graders and evaluation scripts can access all five features, submit claims, review claims, and cast votes without creating an account or signing in.
+
+---
+
+## Tech Stack
+
+- **Frontend:** React 18, Vite, Tailwind CSS, React Router v6, React Hot Toast
+- **Backend:** Node.js, Express.js, Mongoose
+- **Database:** MongoDB Atlas
+- **AI / OCR:** Google Generative AI SDK (Gemini 2.5 Flash for image OCR and link analysis)
+
+---
+
+## Running Locally
+
+### 1. Clone the repository
+```bash
+git clone https://github.com/saurabh3126/triage-platform.git
+cd triage-platform
 ```
 
-### 2. Install & Run Server
+### 2. Backend Setup
 ```bash
 cd server
 npm install
-npm run dev
-# Server runs on http://localhost:5000
 ```
 
-### 3. Install & Run Client
+Create a `.env` file in the `server/` directory:
+```env
+PORT=5000
+MONGO_URI=your_mongodb_connection_string
+GEMINI_API_KEY=your_gemini_api_key
+```
+
+Start the backend:
+```bash
+npm run dev
+```
+
+### 3. Frontend Setup
+In a new terminal:
 ```bash
 cd client
 npm install
 npm run dev
-# Client runs on http://localhost:5173
 ```
+Open `http://localhost:5173` in your browser.
 
 ---
 
-## 📡 API Reference Summary
+## 3–4 Minute Demo Video Guide
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/api/claims` | Fetch all claims with query filters (`category`, `status`, `sort`, `search`) |
-| `POST` | `/api/claims` | Submit a new claim with duplicate checks and flag analysis |
-| `GET` | `/api/claims/stats` | Aggregated dashboard metrics, severity counts, and audit stream |
-| `GET` | `/api/claims/trending`| Highest risk claims within the last 24 hours |
-| `GET` | `/api/claims/:id` | Retrieve single claim by MongoDB ID |
-| `PATCH` | `/api/claims/:id/review` | Submit reviewer verdict with note |
-| `PATCH` | `/api/claims/:id/dispute` | Transition claim to Disputed and launch 12h voting |
-| `POST` | `/api/claims/:id/vote` | Cast community vote (`true` / `false`) |
-| `POST` | `/api/claims/:id/resolve`| Finalize dispute decision based on vote outcome |
-| `POST` | `/api/claims/extract-link`| Auto-extract preview and text from article or Reddit URL |
-| `POST` | `/api/claims/gemini-analyze`| Multimodal AI analysis + OCR screenshot processing |
+Here is a recommended script for recording the walkthrough:
 
----
-
-## 📄 License
-MIT License. Created for the FactTriage Misinformation Verification Challenge.
+1. **Submit a Claim (0:00 – 0:45):** Go to `/submit`, enter a suspicious message with all-caps and keywords (e.g. `"BREAKING: SHOCKING TRUTH THEY DON'T WANT YOU TO KNOW share before deleted"`), choose `WhatsApp` and `Health`, then hit submit.
+2. **Risk Flags (0:45 – 1:15):** Show that the claim immediately received all three flags (Sensational, Shouting, Unsourced) and automatically qualified as **High Risk**.
+3. **Review Workflow (1:15 – 1:50):** Click on the submitted claim to open the drawer. Click "Add Initial Verdict", pick `Verified False` or `Misleading`, write a quick explanation note, and save it. Show how the badge updates and the note appears in the audit log.
+4. **Public Feed & Filters (1:50 – 2:30):** Head back to `/`. Show the feed sorting by Highest Risk by default, switch to Most Recent, and filter by category (`Health`) and status (`Verified False`).
+5. **Detail View & Community Dispute (2:30 – 3:15):** Open the drawer again. Click "Dispute this Verdict" to start community voting. Cast a vote and point out the live true/false percentage meter.
+6. **Decision Points (3:15 – 3:45):** Briefly explain why we chose risk-first ordering (DP1), immediate public visibility (DP2), and immutable text with an audit trail (DP3).
