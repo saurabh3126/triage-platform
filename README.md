@@ -3,7 +3,7 @@
 **Hackathon ID:** AZIS-UUP4SQ  
 **Track:** Misinformation / Content Triage  
 **Live Deployed App:** https://azisly-hackathon-frontend.onrender.com/  
-**Demo Video:** [Watch the 3-Minute Walkthrough Video](PASTE_YOUR_DEMO_VIDEO_LINK_HERE)  
+**Demo Video:** [Watch the 3-Minute Walkthrough Video](https://drive.google.com/drive/folders/1cZXMxIzneTi0HA3Dv-sWx5uxjpQB9_aE?usp=drive_link)  
 **Repository:** https://github.com/saurabh3126/triage-platform  
 **Grading Mode:** Browser agent driving UI  
 
@@ -100,13 +100,4 @@ Open `http://localhost:5173` in your browser.
 
 ---
 
-## 3–4 Minute Demo Video Guide
 
-Here is a recommended script for recording the walkthrough:
-
-1. **Submit a Claim (0:00 – 0:45):** Go to `/submit`, enter a suspicious message with all-caps and keywords (e.g. `"BREAKING: SHOCKING TRUTH THEY DON'T WANT YOU TO KNOW share before deleted"`), choose `WhatsApp` and `Health`, then hit submit.
-2. **Risk Flags (0:45 – 1:15):** Show that the claim immediately received all three flags (Sensational, Shouting, Unsourced) and automatically qualified as **High Risk**.
-3. **Review Workflow (1:15 – 1:50):** Click on the submitted claim to open the drawer. Click "Add Initial Verdict", pick `Verified False` or `Misleading`, write a quick explanation note, and save it. Show how the badge updates and the note appears in the audit log.
-4. **Public Feed & Filters (1:50 – 2:30):** Head back to `/`. Show the feed sorting by Highest Risk by default, switch to Most Recent, and filter by category (`Health`) and status (`Verified False`).
-5. **Detail View & Community Dispute (2:30 – 3:15):** Open the drawer again. Click "Dispute this Verdict" to start community voting. Cast a vote and point out the live true/false percentage meter.
-6. **Decision Points (3:15 – 3:45):** Briefly explain why we chose risk-first ordering (DP1), immediate public visibility (DP2), and immutable text with an audit trail (DP3).
