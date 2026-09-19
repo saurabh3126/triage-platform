@@ -3,8 +3,9 @@
 **Hackathon ID:** AZIS-UUP4SQ  
 **Track:** Misinformation / Content Triage  
 **Live Deployed App:** https://azisly-hackathon-frontend.onrender.com/  
+**Demo Video:** [Watch the 3-Minute Walkthrough Video](PASTE_YOUR_DEMO_VIDEO_LINK_HERE)  
 **Repository:** https://github.com/saurabh3126/triage-platform  
-**Grading Mode:** Browser agent driving UI & REST API  
+**Grading Mode:** Browser agent driving UI  
 
 ---
 
