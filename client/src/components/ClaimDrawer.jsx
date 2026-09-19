@@ -204,17 +204,17 @@ export default function ClaimDrawer({ claim, onClose, onClaimUpdated }) {
                 ) : (
                   <form onSubmit={handleReviewSubmit} className="space-y-4 p-5 mt-2 bg-slate-50 border-2 border-black rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                     <div className="text-[10px] font-black text-black uppercase tracking-[0.2em]">Submit Verdict</div>
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                       <button type="button" onClick={() => setReviewStatus('Verified True')}
-                        className={`py-2.5 text-[11px] font-black uppercase tracking-wider rounded-xl border-2 transition-all ${reviewStatus === 'Verified True' ? 'bg-[#FFD700] text-black border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]' : 'bg-white text-black border-black hover:bg-emerald-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'}`}>
-                        ✅ True
+                        className={`py-3 px-2 text-[10px] sm:text-[11px] font-black uppercase tracking-wider rounded-xl border-2 transition-all ${reviewStatus === 'Verified True' ? 'bg-[#FFD700] text-black border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]' : 'bg-white text-black border-black hover:bg-emerald-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'}`}>
+                        ✅ Verified True
                       </button>
                       <button type="button" onClick={() => setReviewStatus('Verified False')}
-                        className={`py-2.5 text-[11px] font-black uppercase tracking-wider rounded-xl border-2 transition-all ${reviewStatus === 'Verified False' ? 'bg-[#FFD700] text-black border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]' : 'bg-white text-black border-black hover:bg-rose-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'}`}>
-                        ❌ False
+                        className={`py-3 px-2 text-[10px] sm:text-[11px] font-black uppercase tracking-wider rounded-xl border-2 transition-all ${reviewStatus === 'Verified False' ? 'bg-[#FFD700] text-black border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]' : 'bg-white text-black border-black hover:bg-rose-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'}`}>
+                        ❌ Verified False
                       </button>
                       <button type="button" onClick={() => setReviewStatus('Misleading')}
-                        className={`py-2.5 text-[11px] font-black uppercase tracking-wider rounded-xl border-2 transition-all ${reviewStatus === 'Misleading' ? 'bg-[#FFD700] text-black border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]' : 'bg-white text-black border-black hover:bg-amber-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'}`}>
+                        className={`py-3 px-2 text-[10px] sm:text-[11px] font-black uppercase tracking-wider rounded-xl border-2 transition-all ${reviewStatus === 'Misleading' ? 'bg-[#FFD700] text-black border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]' : 'bg-white text-black border-black hover:bg-amber-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'}`}>
                         ⚠️ Misleading
                       </button>
                     </div>
